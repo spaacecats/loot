@@ -1,8 +1,10 @@
 module.exports = function Loot(dispatch) {
 
-    let auto = true,
+    let auto = false,
         enabled = true,
-        lootInterval = setInterval(tryLootAll,1000),
+		lootInterval = setInterval(tryLootAll,150),
+		x = 0,
+		y = 0,
         location;
 
     let loot = {};
@@ -12,9 +14,9 @@ module.exports = function Loot(dispatch) {
             alias: ['auto', 'autoloot', 'toggle'],
             run: function() {
                 auto = !auto;
-                message(`Autoloot mode toggled: ${auto}`);
-                if(auto){
-					lootInterval = setInterval(tryLootAll,1000)
+                message(` Autoloot mode toggled: ${auto}`);
+				if(auto){
+					lootInterval = setInterval(tryLootAll,150)
 				}
 				else
 					clearInterval(lootInterval)
@@ -24,18 +26,17 @@ module.exports = function Loot(dispatch) {
             alias: ['enable', 'on'],
             run: function() {
                 enabled = true;
-                message('Easy looting is enabled.');
+                message(' Easy looting is enabled.');
             }
         },
         disable: {
             alias: ['disable', 'off'],
             run: function() {
                 enabled = false;
-                message('Easy looting is disabled.');
+                message(' Easy looting is disabled.');
             }
         }
     }
-
     dispatch.hook('C_CHAT', 1, (event) => {
         if(!event.message.includes('!loot'))
             return;
@@ -51,14 +52,15 @@ module.exports = function Loot(dispatch) {
 
         return false;
     });
-
+	dispatch.hook('S_LOGIN', 1, event =>{loginTimeout = setTimeout(tryLootAll,5000)})
     dispatch.hook('S_LOAD_TOPO', 1, (event) => {
         loot = {};
     });
 
     dispatch.hook('C_PLAYER_LOCATION', 1, (event) => {
-        location = event;
-    });
+       x = event.x1
+	   y = event.y1
+	})
 
     dispatch.hook('S_SPAWN_DROPITEM', 1, (event) => {
         loot[event.id.toString()] = event;
@@ -74,7 +76,7 @@ module.exports = function Loot(dispatch) {
 
     function tryLootAll() {
         for(let item in loot) {
-            if(Math.abs(loot[item].x - location.x1) < 120 && Math.abs(loot[item].y - location.y1) < 120)
+            if(Math.abs(loot[item].x - x) < 125 && Math.abs(loot[item].y - y) < 125)
                 dispatch.toServer('C_TRY_LOOT_DROPITEM', 1, {
                     id: loot[item].id
                 });
