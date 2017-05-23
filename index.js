@@ -1,6 +1,6 @@
 module.exports = function Loot(dispatch) {
 
-    let auto = false,
+    let auto = true,
         enabled = true,
 		lootInterval = setInterval(tryLootAll,150),
 		x = 0,
