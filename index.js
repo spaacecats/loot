@@ -52,7 +52,6 @@ module.exports = function Loot(dispatch) {
 
         return false;
     });
-	dispatch.hook('S_LOGIN', 1, event =>{loginTimeout = setTimeout(tryLootAll,5000)})
     dispatch.hook('S_LOAD_TOPO', 1, (event) => {
         loot = {};
     });
